@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { pruneCovers } from '../storage/covers';
 import { shouldRemindExport } from '../storage/exportImport';
 import { CatalogEditor } from './CatalogEditor';
+import { DogLightbox, DogRails, DogStrip, type DogPhoto } from './DogRails';
 import { EventEditor } from './EventEditor';
 import { EventList } from './EventList';
 import { useAppState } from './useAppState';
@@ -19,6 +20,8 @@ export function App() {
   const app = useAppState();
   const [route, setRoute] = useState<Route>(parseHash);
   const [dismissedReminder, setDismissedReminder] = useState(false);
+  const [dog, setDog] = useState<DogPhoto | null>(null);
+  const closeDog = useCallback(() => setDog(null), []);
 
   useEffect(() => {
     const onHash = () => setRoute(parseHash());
@@ -39,6 +42,7 @@ export function App() {
 
   return (
     <div className="app">
+      <DogRails onOpen={setDog} />
       <header className="topbar">
         <a className="brand" href="#/"><span className="brand-script">Menu</span> Proposals</a>
         <nav>
@@ -46,6 +50,8 @@ export function App() {
           <a href="#/catalog" className={route.view === 'catalog' ? 'on' : ''}>Catalog</a>
         </nav>
       </header>
+      <DogStrip onOpen={setDog} />
+      {dog && <DogLightbox photo={dog} onClose={closeDog} />}
 
       {!app.storageAvailable && <div className="banner bad">This browser is blocking storage (private window?). Your work won't be saved — use Export backup before closing.</div>}
       {app.saveFailed && <div className="banner bad">Couldn't save to this browser (storage full?). Export a backup now.</div>}
