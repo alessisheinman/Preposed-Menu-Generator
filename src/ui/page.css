@@ -1,0 +1,105 @@
+/* ---------- Proposal page: 816×1056 (US Letter), modeled on the ENHYPEN Canva design ---------- */
+.proposal-page {
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  color: var(--ink);
+  font-family: 'Ovo', Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+}
+.pp-bloom {
+  position: absolute; inset: 0;
+  opacity: 0.1;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+.pp-cover {
+  position: absolute;
+  left: 15px; right: 15px; top: 8px;
+  height: 411px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
+}
+.pp-cover.empty {
+  display: grid; place-items: center;
+  color: rgb(255 255 255 / 0.85);
+  font: 600 22px system-ui, sans-serif;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+/* "Menu" — stands in for Canva's Amsterdam Three */
+.pp-script {
+  position: absolute;
+  left: 0; right: 0;
+  top: 262px;
+  text-align: center;
+  padding-right: 30px;
+  font-family: 'Sacramento', cursive;
+  font-size: 178px;
+  line-height: 1;
+  color: var(--script);
+  -webkit-text-stroke: 1.1px var(--script);
+  text-shadow: 0 2px 8px rgb(0 0 0 / 0.28);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.pp-title {
+  position: absolute;
+  left: 0; right: 0;
+  top: 436px;
+  margin: 0;
+  text-align: center;
+  font-family: 'Cinzel Decorative', 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 31px;
+  letter-spacing: 0.3em;
+  padding-left: 0.3em; /* balance the trailing letter-spacing */
+  color: var(--ink);
+}
+.pp-date {
+  position: absolute;
+  left: 0; right: 0;
+  top: 484px;
+  margin: 0;
+  text-align: center;
+  font-size: 15px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+}
+
+.pp-area {
+  position: absolute;
+  left: 56px; right: 56px;
+  top: 500px; bottom: 30px;
+  display: flex;
+  align-items: center;
+}
+.pp-area.with-date { top: 522px; }
+
+.pp-list {
+  width: 100%;
+  --fit: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: calc(11px * var(--fit));
+  column-gap: 40px;
+  text-align: center;
+}
+.pp-list[data-columns='2'] { grid-template-columns: 1fr 1fr; }
+.pp-item { break-inside: avoid; }
+.pp-name {
+  font-size: calc(31px * var(--fit));
+  line-height: 1.1;
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.08);
+}
+.pp-desc {
+  margin-top: calc(2px * var(--fit));
+  font-size: calc(17px * var(--fit));
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--soft-ink);
+}
