@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { contrast, fromOklch, hexToRgb, rgbToHex, toOklch } from './color';
-import { extractPalette } from './palette';
+import { companionColor, extractPalette } from './palette';
 import { deriveTheme } from './theme';
 
 /** Build RGBA pixels from [hex, count] pairs. */
@@ -24,14 +24,20 @@ describe('color utils', () => {
 });
 
 describe('extractPalette', () => {
-  it('prefers a prominent colorful area over a larger dark one', () => {
+  it('takes the gold backdrop as primary and pairs it with a cool teal (ENHYPEN look)', () => {
     // like the ENHYPEN cover: lots of near-black suits, a big golden wall, a little white
     const { primary, secondary } = extractPalette(pixels([['#151210', 500], ['#b08a55', 400], ['#f4efe8', 60]]));
     expect(toOklch(primary).h).toBeGreaterThan(60);
     expect(toOklch(primary).h).toBeLessThan(90); // gold/amber hue
-    expect(primary).not.toBe(secondary);
+    const h2 = toOklch(secondary).h;
+    expect(h2).toBeGreaterThan(170);
+    expect(h2).toBeLessThan(230); // blue-teal, not the dark brown of the suits
   });
-  it('finds a clearly different secondary', () => {
+  it('companionColor turns warm into cool', () => {
+    expect(toOklch(companionColor('#c9a46a')).h).toBeGreaterThan(170);
+    expect(companionColor('#c9a46a')).not.toBe(companionColor('#2c6fd1'));
+  });
+  it('uses a strong second color that is really in the cover', () => {
     const { primary, secondary } = extractPalette(pixels([['#d23b3b', 500], ['#2c6fd1', 300], ['#d84040', 100]]));
     expect(toOklch(primary).h).toBeLessThan(40); // red
     expect(toOklch(secondary).h).toBeGreaterThan(230); // blue, not the near-duplicate red

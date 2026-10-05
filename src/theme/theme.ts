@@ -1,4 +1,4 @@
-import { contrast, fromOklch, toOklch } from './color';
+import { contrast, fromOklch, hexToRgb, oklabToRgb, rgbToHex, rgbToOklab, toOklch } from './color';
 
 export interface PageTheme {
   /** Watercolor wash: pale tints of the primary (top) and secondary (bottom) colors. */
@@ -28,12 +28,12 @@ export function deriveTheme(primary: string, secondary: string): PageTheme {
   const s = toOklch(secondary);
   const tint = (c: { c: number; h: number }, l: number, maxChroma: number) => fromOklch({ l, c: Math.min(c.c, maxChroma), h: c.h });
 
-  const washTop = tint(p, 0.93, 0.045);
-  const washBottom = tint(s, 0.91, 0.045);
-  // blend in OKLCH-ish space via the midpoint of the two tints
-  const mid = toOklch(washTop), bot = toOklch(washBottom);
-  const hueMid = Math.abs(mid.h - bot.h) > 180 ? ((mid.h + bot.h + 360) / 2) % 360 : (mid.h + bot.h) / 2;
-  const washMid = fromOklch({ l: (mid.l + bot.l) / 2 + 0.01, c: (mid.c + bot.c) / 2, h: hueMid });
+  const washTop = tint(p, 0.925, 0.052);
+  const washBottom = tint(s, 0.905, 0.03); // soft, slightly grey cool tone (the ENHYPEN bottom teal)
+  // Blend straight across in OKLab (not around the hue wheel): peach → teal passes through a soft
+  // neutral cream, as on the ENHYPEN page, instead of detouring through green.
+  const [t, b] = [rgbToOklab(hexToRgb(washTop)), rgbToOklab(hexToRgb(washBottom))];
+  const washMid = rgbToHex(oklabToRgb([(t[0] + b[0]) / 2 + 0.01, (t[1] + b[1]) / 2, (t[2] + b[2]) / 2]));
 
   const backgrounds = [washTop, washMid, washBottom];
   const ink = ensureContrast(fromOklch({ l: 0.36, c: Math.min(p.c, 0.07), h: p.h }), backgrounds, 7);

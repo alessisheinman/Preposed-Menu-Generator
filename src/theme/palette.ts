@@ -1,4 +1,4 @@
-import { deltaE, rgbToHex, rgbToOklab, oklabToRgb, type RGB } from './color';
+import { deltaE, fromOklch, rgbToHex, rgbToOklab, oklabToRgb, toOklch, type RGB } from './color';
 
 interface Cluster { lab: [number, number, number]; count: number; }
 
@@ -36,9 +36,24 @@ function kmeans(points: [number, number, number][], k: number, iterations = 12):
 }
 
 /**
- * Pick the cover's primary and secondary colors from RGBA pixels (typically a ~96px downscale).
- * Primary: the most prominent colorful cluster (near-black / near-white count for less).
- * Secondary: the next most prominent cluster that is clearly different from the primary.
+ * The cool partner of a cover's main color, like the ENHYPEN proposal: gold backdrop → blue-teal wash.
+ * Rotates the hue ~110° in OKLCH (gold → teal, red → green-teal, blue → rose) at a soft, mid chroma.
+ */
+export function companionColor(primary: string): string {
+  const p = toOklch(primary);
+  return fromOklch({ l: 0.72, c: Math.min(Math.max(p.c, 0.06), 0.1), h: (p.h + 110) % 360 });
+}
+
+/** A second cover color only counts as "the tour's second color" if it is this big and this colorful. */
+const STRONG_SHARE = 0.2;
+const STRONG_CHROMA = 0.07;
+
+/**
+ * Pick the page colors from the cover's RGBA pixels (typically a ~96px downscale).
+ * Primary: the cover's main color — the most prominent cluster, where dark shadows/suits and
+ *   blown-out highlights count for less (so a gold backdrop beats black jackets).
+ * Secondary: a genuinely strong, different second color in the cover if there is one; otherwise
+ *   the primary's cool companion (gold → teal), which gives the gold-to-blue wash of the ENHYPEN menu.
  */
 export function extractPalette(rgba: ArrayLike<number>): { primary: string; secondary: string; candidates: string[] } {
   const points: [number, number, number][] = [];
@@ -58,8 +73,12 @@ export function extractPalette(rgba: ArrayLike<number>): { primary: string; seco
   const ranked = [...clusters].sort((x, y) => score(y) - score(x));
   const hex = (c: Cluster) => rgbToHex(oklabToRgb(c.lab));
   const primary = hex(ranked[0]);
-  const second = ranked.slice(1).find((c) => deltaE(hex(c), primary) > 0.12) ?? ranked[1] ?? ranked[0];
+  const strongSecond = ranked.slice(1).find((c) => {
+    const [L, a, b] = c.lab;
+    return c.count / points.length >= STRONG_SHARE && Math.hypot(a, b) >= STRONG_CHROMA && L >= 0.25 && L <= 0.92
+      && deltaE(hex(c), primary) > 0.15;
+  });
   // every cluster, most prominent first, so the user can pick another color from the cover
   const candidates = [...clusters].sort((x, y) => y.count - x.count).map(hex);
-  return { primary, secondary: hex(second), candidates };
+  return { primary, secondary: strongSecond ? hex(strongSecond) : companionColor(primary), candidates };
 }

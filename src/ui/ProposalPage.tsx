@@ -71,10 +71,10 @@ export function ProposalPage({ day, meal, palette, coverUrl, coverFocusY, classN
     backgroundColor: theme.washMid,
     backgroundImage: [
       GRAIN,
-      `radial-gradient(ellipse 70% 38% at 18% 74%, ${hexToRgba(theme.washBottom, 0.9)}, transparent 70%)`,
-      `radial-gradient(ellipse 60% 30% at 82% 92%, ${hexToRgba(theme.washBottom, 1)}, transparent 70%)`,
-      `radial-gradient(ellipse 65% 30% at 70% 52%, ${hexToRgba(theme.washTop, 0.9)}, transparent 70%)`,
-      `linear-gradient(to bottom, ${theme.washTop} 0%, ${theme.washTop} 38%, ${theme.washMid} 62%, ${theme.washBottom} 100%)`,
+      `radial-gradient(ellipse 75% 22% at 22% 96%, ${hexToRgba(theme.washBottom, 0.95)}, transparent 72%)`,
+      `radial-gradient(ellipse 60% 18% at 80% 100%, ${hexToRgba(theme.washBottom, 1)}, transparent 72%)`,
+      `radial-gradient(ellipse 70% 30% at 65% 60%, ${hexToRgba(theme.washTop, 0.9)}, transparent 70%)`,
+      `linear-gradient(to bottom, ${theme.washTop} 0%, ${theme.washTop} 58%, ${theme.washMid} 78%, ${theme.washBottom} 100%)`,
     ].join(', '),
   } as CSSProperties;
 
