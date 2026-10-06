@@ -91,7 +91,31 @@ input.missing { border-color: #a07a2c; background: #261f12; }
 .event-bar { display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1rem; }
 .event-name { font-family: 'Ovo', Georgia, serif; font-size: 1.25rem; }
 
-.cover-card { display: grid; grid-template-columns: 300px 1fr; gap: 1.2rem; align-items: start; }
+.cover-card { display: grid; grid-template-columns: 340px 1fr; gap: 1.2rem; align-items: start; }
+.cover-heading { margin: 0; font-family: 'Ovo', Georgia, serif; font-weight: 400; font-size: 1.15rem; }
+.cover-drop {
+  position: relative; aspect-ratio: 787 / 411; border-radius: 8px; cursor: pointer;
+  display: grid; place-items: center; text-align: center;
+  border: 2px dashed var(--accent); background: var(--accent-soft);
+  background-size: cover; background-repeat: no-repeat;
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+}
+.cover-drop:hover, .cover-drop:focus-visible, .cover-drop.over { border-color: #f0cf96; box-shadow: 0 0 0 4px rgb(214 170 104 / 0.18); outline: none; }
+.cover-drop.over { background-color: #4a3a24; }
+.cover-drop-label { display: grid; gap: 0.25rem; padding: 0.8rem; color: var(--ink); }
+.cover-drop-label strong { font-family: 'Cinzel Decorative', serif; letter-spacing: 0.12em; font-size: 1rem; color: var(--accent); }
+.cover-drop-label span { font-size: 0.9rem; }
+.cover-drop-label small { color: var(--muted); font-size: 0.78rem; }
+.cover-drop.has-image { border-style: solid; border-color: transparent; }
+.cover-drop.has-image .cover-drop-label {
+  position: absolute; left: 8px; bottom: 8px; padding: 0.25rem 0.55rem; border-radius: 999px;
+  background: rgb(0 0 0 / 0.6); color: #fff; font-size: 0.78rem; opacity: 0; transition: opacity 0.15s;
+}
+.cover-drop.has-image:hover .cover-drop-label, .cover-drop.has-image:focus-visible .cover-drop-label, .cover-drop.has-image.over .cover-drop-label { opacity: 1; }
+.new-event-form { display: grid !important; grid-template-columns: 280px 1fr; gap: 1rem; align-items: stretch; }
+.new-event-fields { display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap; align-content: flex-end; }
+.new-event-fields .error { flex-basis: 100%; }
+@media (max-width: 760px) { .new-event-form { grid-template-columns: 1fr; } }
 .cover-thumb { aspect-ratio: 787 / 411; border-radius: 6px; background: repeating-linear-gradient(45deg, #1d1915 0 10px, #24201b 10px 20px); background-size: cover; display: grid; place-items: center; color: var(--muted); box-shadow: inset 0 0 0 1px var(--line); }
 .cover-controls { display: grid; gap: 0.8rem; }
 .cover-controls input[type='range'] { width: 100%; padding: 0; accent-color: var(--accent); }

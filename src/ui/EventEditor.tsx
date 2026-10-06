@@ -9,9 +9,10 @@ import {
 import { printItems } from '../model/format';
 import { findLine, findMeal, moveDay, moveLine, moveMeal } from '../model/reorder';
 import type { Catalog, Day, Meal, MealType, MenuEvent } from '../model/types';
-import { prepareCover, sampleFromDataUrl, saveCover } from '../storage/covers';
+import { sampleFromDataUrl } from '../storage/covers';
 import { extractPalette } from '../theme/palette';
 import { ConfirmButton, TITLE_SUGGESTIONS, saveBlob } from './common';
+import { CoverDrop, importCover } from './CoverDrop';
 import { dragId, rawId, typedCollision, useDragSensors, useSortableBox, type DragBox, type DragType } from './dnd';
 import { MealEditor } from './MealEditor';
 import { Preview } from './Preview';
@@ -30,13 +31,13 @@ const ADDABLE: MealType[] = ['Breakfast', 'Lunch', 'Dinner', 'Custom'];
 export function EventEditor({ event, catalog, coverUrl, onCoverStored, onChange, onBack }: Props) {
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
+  const [coverError, setCoverError] = useState('');
   const update = (e: MenuEvent) => onChange(touch(e));
   const eventRef = useRef(event);
   eventRef.current = event;
   const dragStart = useRef<MenuEvent | null>(null);
   const [dragging, setDragging] = useState<{ type: DragType; id: string } | null>(null);
   const sensors = useDragSensors();
-  const fileRef = useRef<HTMLInputElement>(null);
   const [candidates, setCandidates] = useState<string[]>([]);
 
   const dishByName = useMemo(() => new Map(catalog.dishes.map((d) => [d.name.toLowerCase(), d])), [catalog.dishes]);
@@ -52,22 +53,18 @@ export function EventEditor({ event, catalog, coverUrl, onCoverStored, onChange,
   }, [coverUrl]);
 
   // ---------- cover & colors ----------
-  const onCoverFile = async (file: File | undefined) => {
-    if (!file) return;
-    setError('');
+  const onCoverFile = async (file: File) => {
+    setCoverError('');
     setBusy('Reading cover…');
     try {
-      const { dataUrl, sample } = await prepareCover(file);
-      const id = await saveCover(dataUrl);
-      onCoverStored(id, dataUrl);
+      const cover = await importCover(file);
+      onCoverStored(cover.id, cover.dataUrl);
       const ev = eventRef.current;
-      const auto = extractPalette(sample);
-      update({ ...ev, coverId: id, palette: ev.palette.auto ? { primary: auto.primary, secondary: auto.secondary, auto: true } : ev.palette });
+      update({ ...ev, coverId: cover.id, palette: ev.palette.auto ? { primary: cover.primary, secondary: cover.secondary, auto: true } : ev.palette });
     } catch (e) {
-      setError(`Couldn't read that image: ${(e as Error).message}`);
+      setCoverError(`Couldn't read that image: ${(e as Error).message}`);
     } finally {
       setBusy('');
-      if (fileRef.current) fileRef.current.value = '';
     }
   };
   const resetColors = async () => {
@@ -171,16 +168,11 @@ export function EventEditor({ event, catalog, coverUrl, onCoverStored, onChange,
         </div>
 
         <section className="card cover-card">
-          <div className="cover-thumb" style={coverUrl ? { backgroundImage: `url("${coverUrl}")`, backgroundPosition: `50% ${event.coverFocusY}%` } : undefined}>
-            {!coverUrl && <span>No cover yet</span>}
-          </div>
+          <CoverDrop imageUrl={coverUrl} focusY={event.coverFocusY} busy={busy === 'Reading cover…'} onFile={onCoverFile} />
           <div className="cover-controls">
-            <div className="row">
-              <button type="button" className="primary" onClick={() => fileRef.current?.click()} disabled={!!busy}>
-                {coverUrl ? 'Replace cover art' : 'Upload cover art'}
-              </button>
-              <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => onCoverFile(e.target.files?.[0])} />
-            </div>
+            <h3 className="cover-heading">Cover &amp; colors</h3>
+            {!coverUrl && <p className="hint">Add the tour's cover art on the left — the page colors come from it.</p>}
+            {coverError && <p className="error">{coverError}</p>}
             {coverUrl && (
               <label className="field">
                 <span>Crop position (drag to show a different part of the cover)</span>

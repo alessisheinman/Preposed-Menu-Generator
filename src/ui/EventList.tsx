@@ -6,6 +6,7 @@ import type { Catalog, CatalogOverrides, ExportFile, MenuEvent } from '../model/
 import { loadCover, saveCover } from '../storage/covers';
 import { buildExport, findConflicts, mergeImport, parseImport, type ConflictChoice } from '../storage/exportImport';
 import { ConfirmButton, saveBlob } from './common';
+import { CoverDrop, importCover } from './CoverDrop';
 
 interface Props {
   events: MenuEvent[];
@@ -23,12 +24,34 @@ export function EventList({ events, covers, overrides, catalog, onOpen, setEvent
   const [name, setName] = useState('');
   const [venue, setVenue] = useState('');
   const [msg, setMsg] = useState('');
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState('');
   const [pending, setPending] = useState<{ file: ExportFile; conflicts: MenuEvent[]; withCatalog: boolean } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const create = () => {
+  const pickCover = (f: File) => {
+    if (!f.type.startsWith('image/')) return setCreateError("That file isn't an image.");
+    setCreateError('');
+    setCoverFile(f);
+    setCoverPreview((old) => { if (old) URL.revokeObjectURL(old); return URL.createObjectURL(f); });
+  };
+
+  const create = async () => {
     const n = name.trim() || 'Untitled tour';
-    const ev = createEvent(n, venue.trim(), defaultFileName(n));
+    let ev = createEvent(n, venue.trim(), defaultFileName(n));
+    if (coverFile) {
+      setCreating(true);
+      try {
+        const cover = await importCover(coverFile);
+        putCover(cover.id, cover.dataUrl);
+        ev = { ...ev, coverId: cover.id, palette: { primary: cover.primary, secondary: cover.secondary, auto: true } };
+      } catch (e) {
+        setCreating(false);
+        return setCreateError(`Couldn't read that image: ${(e as Error).message}`);
+      }
+    }
     setEvents((all) => [ev, ...all]);
     onOpen(ev.id);
   };
@@ -71,7 +94,9 @@ export function EventList({ events, covers, overrides, catalog, onOpen, setEvent
     <div className="list-page">
       <section className="card new-event">
         <h2>New proposal</h2>
-        <form onSubmit={(e) => { e.preventDefault(); create(); }}>
+        <form className="new-event-form" onSubmit={(e) => { e.preventDefault(); create(); }}>
+          <CoverDrop imageUrl={coverPreview} busy={creating} onFile={pickCover} className="new-cover" />
+          <div className="new-event-fields">
           <label className="field grow">
             <span>Tour / artist</span>
             <input value={name} placeholder="e.g. ENHYPEN World Tour" onChange={(e) => setName(e.target.value)} autoFocus />
@@ -81,7 +106,9 @@ export function EventList({ events, covers, overrides, catalog, onOpen, setEvent
             <input value={venue} list="dl-venue-names" placeholder="UBS Arena" onChange={(e) => setVenue(e.target.value)} />
             <datalist id="dl-venue-names">{catalog.venues.map((v) => <option key={v.id} value={v.name} />)}</datalist>
           </label>
-          <button type="submit" className="primary">Create</button>
+          <button type="submit" className="primary" disabled={creating}>{creating ? 'Creating…' : 'Create'}</button>
+          {createError && <p className="error">{createError}</p>}
+          </div>
         </form>
       </section>
 
