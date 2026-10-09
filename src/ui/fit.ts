@@ -1,7 +1,7 @@
 export interface Fit { columns: 1 | 2; scale: number; }
 
 /** Text smaller than this (relative to the design size) is too small for a printed proposal. */
-export const MIN_SCALE_ONE_COLUMN = 0.78;
+export const MIN_SCALE_ONE_COLUMN = 0.72;
 export const MIN_SCALE_TWO_COLUMNS = 0.55;
 
 /**
