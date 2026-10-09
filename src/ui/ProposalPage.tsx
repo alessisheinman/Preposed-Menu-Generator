@@ -3,6 +3,7 @@ import { printItems } from '../model/format';
 import type { Day, Meal, Palette } from '../model/types';
 import { hexToRgba } from '../theme/color';
 import { deriveTheme } from '../theme/theme';
+import jmLogo from '../assets/jm-logo.png';
 import { chooseFit, type Fit } from './fit';
 
 /** US Letter at 96 CSS px per inch. The page is always laid out at this size; previews scale it. */
@@ -81,6 +82,7 @@ export function ProposalPage({ day, meal, palette, coverUrl, coverFocusY, classN
   return (
     <article className={`proposal-page ${className}`} style={style}>
       <div className="pp-bloom" style={{ backgroundImage: BLOOM }} />
+      <img className="pp-logo" src={jmLogo} alt="Jack Monkey Catering" draggable={false} />
       <div
         className={`pp-cover ${coverUrl ? '' : 'empty'}`}
         style={coverUrl
