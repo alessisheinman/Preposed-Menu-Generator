@@ -70,13 +70,13 @@ describe('format', () => {
     const meal = createMeal('Breakfast', bf, catalog);
     meal.lines.push({ kind: 'dish', id: 's', dishName: '', tags: [], description: '', slot: 'Dessert' }, { kind: 'text', id: 't', text: 'Sandwich Station' });
     expect(printItems(meal)).toEqual([
-      { name: 'Organic Scrambled Eggs GF', description: 'Soft, fluffy farm-fresh eggs' },
+      { name: 'Organic Scrambled Eggs (GF)', description: 'Soft, fluffy farm-fresh eggs' },
       { name: 'Tofu Scramble (Vegan, GF)', description: 'Turmeric tofu' },
       { name: 'Sandwich Station', description: '' },
     ]);
   });
-  it('formats tags like the kitchen menus', () => {
-    expect([formatTags([]), formatTags(['GF']), formatTags(['GF', 'Vegan']), formatTags(['Vegetarian'])]).toEqual(['', 'GF', '(Vegan, GF)', '(Vegetarian)']);
+  it('puts every tag group in parentheses', () => {
+    expect([formatTags([]), formatTags(['GF']), formatTags(['GF', 'Vegan']), formatTags(['Vegetarian'])]).toEqual(['', '(GF)', '(Vegan, GF)', '(Vegetarian)']);
   });
   it('names the file after the tour', () => {
     expect(defaultFileName('ENHYPEN / UBS')).toBe('ENHYPEN UBS Proposed Menu.pdf');
