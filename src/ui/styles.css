@@ -295,3 +295,22 @@ body:has(.drag-chip, .drag-card, .thumb.lifted) * { cursor: grabbing !important;
 @media (max-width: 760px) {
   .cover-card { grid-template-columns: 1fr; }
 }
+
+/* ---------- preview page, opened large (same feel as the dog photos) ---------- */
+.page-slot { cursor: zoom-in; }
+.page-lightbox {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem;
+  background: rgb(8 6 4 / 0.86);
+  cursor: zoom-out;
+  animation: dog-fade 0.18s ease-out;
+}
+.page-lightbox-frame {
+  overflow: hidden; border-radius: 3px;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.6);
+  animation: dog-pop 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+.page-lightbox-caption { margin: 0; color: #cdbfae; font-size: 0.85rem; user-select: none; }
+@media (prefers-reduced-motion: reduce) {
+  .page-lightbox, .page-lightbox-frame { animation: none; }
+}
