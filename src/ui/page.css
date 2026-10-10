@@ -69,6 +69,9 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink);
+  /* Ovo has no bold weight: thicken the strokes evenly instead of the browser's lopsided faux-bold */
+  font-weight: 400;
+  -webkit-text-stroke: 0.7px var(--ink);
 }
 
 .pp-area {
