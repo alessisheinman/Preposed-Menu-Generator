@@ -4,8 +4,9 @@ import {
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
-  DEFAULT_TITLES, createDay, createMeal, duplicateDay, duplicateMeal, insertAfter, mapDay, mapMeal, touch, validateEvent,
+  DEFAULT_TITLES, createMeal, duplicateMeal, insertAfter, mapDay, mapMeal, touch, validateEvent,
 } from '../model/event';
+import { addDate, datesBetween, dayForDate, formatDateLabel, removeDate, setDayDate } from '../model/dates';
 import { printItems } from '../model/format';
 import { findLine, findMeal, moveDay, moveLine, moveMeal } from '../model/reorder';
 import type { Catalog, Day, Meal, MealType, MenuEvent } from '../model/types';
@@ -13,6 +14,7 @@ import { sampleFromDataUrl } from '../storage/covers';
 import { extractPalette } from '../theme/palette';
 import { ConfirmButton, TITLE_SUGGESTIONS, saveBlob } from './common';
 import { CoverDrop, importCover } from './CoverDrop';
+import { DayCalendar } from './DayCalendar';
 import { dragId, rawId, typedCollision, useDragSensors, useSortableBox, type DragBox, type DragType } from './dnd';
 import { MealEditor } from './MealEditor';
 import { Preview } from './Preview';
@@ -39,6 +41,8 @@ export function EventEditor({ event, catalog, coverUrl, onCoverStored, onChange,
   const [dragging, setDragging] = useState<{ type: DragType; id: string } | null>(null);
   const sensors = useDragSensors();
   const [candidates, setCandidates] = useState<string[]>([]);
+  /** A picked date whose day already has pages: removing it needs a confirmation. */
+  const [pendingRemove, setPendingRemove] = useState<string | null>(null);
 
   const dishByName = useMemo(() => new Map(catalog.dishes.map((d) => [d.name.toLowerCase(), d])), [catalog.dishes]);
   const warnings = validateEvent(event);
@@ -74,7 +78,25 @@ export function EventEditor({ event, catalog, coverUrl, onCoverStored, onChange,
   };
   const setColor = (which: 'primary' | 'secondary', hex: string) => update({ ...event, palette: { ...event.palette, [which]: hex, auto: false } });
 
-  // ---------- days & meals ----------
+  // ---------- days (picked on the calendar) & meals ----------
+  const pickDate = (iso: string, rangeFrom?: string) => {
+    setPendingRemove(null);
+    if (rangeFrom) {
+      // shift-click: add every day in the range (never removes)
+      update(datesBetween(rangeFrom, iso).reduce((ev, d) => addDate(ev, d), eventRef.current));
+      return;
+    }
+    const existing = dayForDate(eventRef.current, iso);
+    if (!existing) update(addDate(eventRef.current, iso));
+    else if (existing.meals.length === 0) update(removeDate(eventRef.current, iso));
+    else setPendingRemove(iso);
+  };
+  const copyPreviousPages = (dayId: string) => {
+    const i = event.days.findIndex((d) => d.id === dayId);
+    const prev = event.days.slice(0, i).reverse().find((d) => d.meals.length > 0);
+    if (prev) update(mapDay(event, dayId, (d) => ({ ...d, meals: prev.meals.map(duplicateMeal) })));
+  };
+
   const addMeal = (dayId: string, type: MealType) => {
     const template = catalog.templates.find((t) => t.mealType === type);
     update(mapDay(event, dayId, (d) => ({ ...d, meals: [...d.meals, createMeal(type, template, catalog, DEFAULT_TITLES[type])] })));
@@ -203,6 +225,32 @@ export function EventEditor({ event, catalog, coverUrl, onCoverStored, onChange,
           </div>
         </section>
 
+        <section className="card days-card">
+          <DayCalendar selected={event.days.flatMap((d) => (d.date ? [d.date] : []))} onPick={pickDate} />
+          <div className="days-info">
+            <h3 className="cover-heading">Event days</h3>
+            <p className="hint">Click each day the menu covers (shift-click to select a run of days). Click a day again to remove it.</p>
+            {event.days.length > 0 && (
+              <ul className="days-summary">
+                {event.days.map((d) => (
+                  <li key={d.id}>{d.date ? formatDateLabel(d.date) : `${d.dateLabel || 'Undated day'} (no calendar date)`} <small>{d.meals.length} page{d.meals.length === 1 ? '' : 's'}</small></li>
+                ))}
+              </ul>
+            )}
+            {pendingRemove && (
+              <div className="notice">
+                <p>Remove {formatDateLabel(pendingRemove)} and its {dayForDate(event, pendingRemove)?.meals.length} page(s)?</p>
+                <div className="row">
+                  <button type="button" className="danger armed" onClick={() => { update(removeDate(event, pendingRemove)); setPendingRemove(null); }}>Remove day</button>
+                  <button type="button" className="ghost" onClick={() => setPendingRemove(null)}>Keep it</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {event.days.length === 0 && <p className="empty">Pick the event days on the calendar above to start adding pages.</p>}
+
         <DndContext
           sensors={sensors}
           collisionDetection={typedCollision}
@@ -212,23 +260,21 @@ export function EventEditor({ event, catalog, coverUrl, onCoverStored, onChange,
           onDragEnd={onDragEnd}
           onDragCancel={onDragCancel}
         >
-          <SortableContext items={event.days.map((d) => dragId('day', d.id))} strategy={verticalListSortingStrategy}>
-            {event.days.map((day) => (
-              <SortableDay key={day.id} day={day}>
-                {(drag) => (
-                  <>
-                    <header className="day-head" {...drag.boxProps}>
-                      <span className="grip" {...drag.gripProps}>⋮⋮</span>
-                      <input
-                        className="day-label"
-                        value={day.dateLabel}
-                        placeholder="Date line (optional), e.g. Tuesday, November 10"
-                        aria-label="Date line"
-                        onChange={(e) => update(mapDay(event, day.id, (d) => ({ ...d, dateLabel: e.target.value })))}
-                      />
+          {event.days.map((day, di) => (
+              <section key={day.id} className="day">
+                    <header className="day-head">
+                      <h3 className="day-title">{day.date ? formatDateLabel(day.date) : (day.dateLabel || 'Undated day')}</h3>
+                      {!day.date && (
+                        <label className="field">
+                          <span>Set calendar date</span>
+                          <input type="date" onChange={(e) => e.target.value && update(setDayDate(event, day.id, e.target.value))} />
+                        </label>
+                      )}
                       <div className="day-actions">
-                        <button type="button" onClick={() => update({ ...event, days: insertAfter(event.days, day.id, duplicateDay(day)) })}>Duplicate day</button>
-                        <ConfirmButton label="Delete day" confirmLabel="Delete whole day?" onConfirm={() => update({ ...event, days: event.days.filter((d) => d.id !== day.id) })} />
+                        {day.meals.length === 0 && event.days.slice(0, di).some((d) => d.meals.length > 0) && (
+                          <button type="button" onClick={() => copyPreviousPages(day.id)}>Copy pages from previous day</button>
+                        )}
+                        <ConfirmButton label="Remove day" confirmLabel="Remove day and its pages?" onConfirm={() => update({ ...event, days: event.days.filter((d) => d.id !== day.id) })} />
                       </div>
                     </header>
                     <SortableContext items={day.meals.map((m) => dragId('meal', m.id))} strategy={verticalListSortingStrategy}>
@@ -255,15 +301,11 @@ export function EventEditor({ event, catalog, coverUrl, onCoverStored, onChange,
                       <span>Add page:</span>
                       {ADDABLE.map((t) => <button key={t} type="button" onClick={() => addMeal(day.id, t)}>+ {t === 'Custom' ? 'Other' : t}</button>)}
                     </div>
-                  </>
-                )}
-              </SortableDay>
+              </section>
             ))}
-          </SortableContext>
           <DragOverlay dropAnimation={null}>{overlay()}</DragOverlay>
         </DndContext>
 
-        <button type="button" className="add-day" onClick={() => update({ ...event, days: [...event.days, createDay()] })}>+ Add day</button>
       </div>
 
       <aside className="editor-side">
@@ -292,15 +334,6 @@ export function EventEditor({ event, catalog, coverUrl, onCoverStored, onChange,
         />
       </aside>
     </div>
-  );
-}
-
-function SortableDay({ day, children }: { day: Day; children: (drag: DragBox) => ReactNode }) {
-  const { setNodeRef, style, isDragging, boxProps, gripProps } = useSortableBox(dragId('day', day.id), { type: 'day' });
-  return (
-    <section ref={setNodeRef} style={style} className={`day ${isDragging ? 'dragging' : ''}`}>
-      {children({ boxProps, gripProps })}
-    </section>
   );
 }
 

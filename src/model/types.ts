@@ -70,7 +70,8 @@ export interface Meal {
   templateId?: string;
   lines: Line[];
 }
-export interface Day { id: string; dateLabel: string; meals: Meal[]; }
+/** `date` (YYYY-MM-DD) comes from the calendar; `dateLabel` is the printed line derived from it (kept for older proposals and the kitchen import). */
+export interface Day { id: string; date?: string; dateLabel: string; meals: Meal[]; }
 
 export interface Palette {
   primary: string;   // #rrggbb
