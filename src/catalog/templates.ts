@@ -26,7 +26,7 @@ export const SEED_TEMPLATES: MealTemplate[] = [
       d('Fresh Bagels and Cream Cheese'),
       d('Fresh Baked Pastries'),
       d('Fresh Fruits'),
-      extra('Selection of Greek and Plain Yogurts'), extra('Individual Assorted Cereals, Muesli, Granola'),
+      extra('Omelette Station'), extra('Selection of Greek and Plain Yogurts'), extra('Individual Assorted Cereals, Muesli, Granola'),
       extra('Assorted Juices'), extra('Freshly Brewed Colombian Coffee'), extra('Espresso Bar'),
     ],
   },

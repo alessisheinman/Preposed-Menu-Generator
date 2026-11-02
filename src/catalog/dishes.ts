@@ -13,7 +13,7 @@ const SEED: Record<Category, string[]> = {
   Breakfast: [
     // client-facing names from the ENHYPEN proposal
     'Fresh Baked Pastries', 'Fresh Bagels and Cream Cheese', 'Organic Scrambled Eggs|G', 'Tofu Scramble|V,G',
-    'Local Sausage with Thyme|G', 'Assorted Burritos',
+    'Local Sausage with Thyme|G', 'Assorted Burritos', 'Omelette Station|G',
     // from the D+D 2026 menu
     'Maple Bacon|G', 'Cinnamon Pancakes', 'Huevos Rancheros|G', 'Hash Brown Potatoes|V,G',
     'Signature Crumb Cakes', 'Scrambled Organic Eggs|G', '“Just” Eggs Scrambled|V,G', 'Hard Boiled Eggs|G',

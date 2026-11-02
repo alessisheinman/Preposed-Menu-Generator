@@ -10,6 +10,7 @@ export const DESCRIPTIONS: Record<string, string> = {
   'Tofu Scramble': 'Turmeric-spiced tofu with sautéed vegetables',
   'Local Sausage with Thyme': 'Savory pork sausage with fresh thyme',
   'Assorted Burritos': 'Eggs, cheese and fillings, warmly wrapped',
+  'Omelette Station': 'Made-to-order omelets, your choice of fillings',
   'Maple Bacon': 'Thick-cut bacon glazed with maple',
   'Cinnamon Pancakes': 'Fluffy stacks swirled with cinnamon sugar',
   'Huevos Rancheros': 'Fried eggs, ranchero salsa, warm tortillas',

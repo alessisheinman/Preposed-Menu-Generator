@@ -19,6 +19,14 @@ describe('seed catalog', () => {
     expect(SEED_DISHES.filter((d) => d.description.split(/\s+/).length > 6).map((d) => `${d.name}: ${d.description}`)).toEqual([]);
   });
 
+  it('offers the omelette station as an optional add on the standard breakfast (burritos stay in it)', () => {
+    const station = SEED_DISHES.find((d) => d.name === 'Omelette Station');
+    expect(station).toMatchObject({ category: 'Breakfast', tags: ['GF'] });
+    const bf = SEED_TEMPLATES.find((t) => t.id === 'breakfast-standard')!;
+    expect(bf.lines.find((l) => l.dishId === station!.id)).toMatchObject({ enabled: false });
+    expect(bf.lines.find((l) => l.dishId === 'assorted-burritos')?.enabled).not.toBe(false);
+  });
+
   it('has no descriptions for dishes that are not in the catalog (typo guard)', () => {
     const names = new Set(SEED_DISHES.map((d) => d.name));
     expect(Object.keys(DESCRIPTIONS).filter((n) => !names.has(n))).toEqual([]);
