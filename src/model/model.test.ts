@@ -76,8 +76,8 @@ describe('format', () => {
     ]);
   });
   it('puts every tag group in parentheses', () => {
-    expect([formatTags([]), formatTags(['GF']), formatTags(['GF', 'Vegan']), formatTags(['Vegetarian'])]).toEqual(['', '(GF)', '(Vegan, GF)', '(Vegetarian)']);
-    expect([formatTags(['GF', 'Pesc']), formatTags(['DF', 'GF'])]).toEqual(['(Pesc, GF)', '(GF, DF)']);
+    expect([formatTags([]), formatTags(['GF']), formatTags(['GF', 'Vegan']), formatTags(['Vegetarian'])]).toEqual(['', '(GF)', '(Vegan, GF)', '(Veg)']);
+    expect([formatTags(['GF', 'Pesc']), formatTags(['DF', 'GF']), formatTags(['GF', 'Vegetarian'])]).toEqual(['(Pesc, GF)', '(GF, DF)', '(Veg, GF)']);
   });
   it('names the file after the tour', () => {
     expect(defaultFileName('ENHYPEN / UBS')).toBe('ENHYPEN UBS Proposed Menu.pdf');

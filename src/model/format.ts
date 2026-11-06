@@ -1,8 +1,8 @@
 import { TAGS, type Line, type Meal, type Tag } from './types';
 
-/** Proposal style: every tag group in parentheses — (GF), (Vegan), (Vegan, GF). */
+/** Proposal style: every tag group in parentheses, with Vegetarian shortened — (GF), (Veg), (Vegan, GF). */
 export function formatTags(tags: Tag[]): string {
-  const ordered = TAGS.filter((t) => tags.includes(t));
+  const ordered = TAGS.filter((t) => tags.includes(t)).map((t) => (t === 'Vegetarian' ? 'Veg' : t));
   return ordered.length ? `(${ordered.join(', ')})` : '';
 }
 
