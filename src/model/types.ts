@@ -1,5 +1,5 @@
-export type Tag = 'GF' | 'Vegan' | 'Vegetarian';
-export const TAGS: Tag[] = ['Vegan', 'Vegetarian', 'GF'];
+export type Tag = 'GF' | 'Vegan' | 'Vegetarian' | 'Pesc' | 'DF';
+export const TAGS: Tag[] = ['Vegan', 'Vegetarian', 'Pesc', 'GF', 'DF'];
 
 export type Category =
   | 'Breakfast' | 'Soup' | 'Salad' | 'Sandwich' | 'Pasta' | 'Rice/Grains'
@@ -89,6 +89,8 @@ export interface MenuEvent {
   coverId: string | null;
   /** Vertical crop position of the cover in the banner, 0 (top) – 100 (bottom). */
   coverFocusY: number;
+  /** The cover already has "Menu" written on it (imported from a PDF), so the page doesn't add its own. */
+  coverIncludesScript?: boolean;
   palette: Palette;
   days: Day[];
   updatedAt: string;

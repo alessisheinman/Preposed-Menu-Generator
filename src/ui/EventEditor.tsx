@@ -64,7 +64,7 @@ export function EventEditor({ event, catalog, coverUrl, onCoverStored, onChange,
       const cover = await importCover(file);
       onCoverStored(cover.id, cover.dataUrl);
       const ev = eventRef.current;
-      update({ ...ev, coverId: cover.id, palette: ev.palette.auto ? { primary: cover.primary, secondary: cover.secondary, auto: true } : ev.palette });
+      update({ ...ev, coverId: cover.id, coverIncludesScript: false, palette: ev.palette.auto ? { primary: cover.primary, secondary: cover.secondary, auto: true } : ev.palette });
     } catch (e) {
       setCoverError(`Couldn't read that image: ${(e as Error).message}`);
     } finally {

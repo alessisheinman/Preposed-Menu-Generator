@@ -19,8 +19,10 @@
     "html-to-image": "^1.11.13",
     "idb-keyval": "^6.3.0",
     "jspdf": "^4.2.1",
+    "pdfjs-dist": "^6.5.438",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.4",

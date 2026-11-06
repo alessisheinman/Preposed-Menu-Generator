@@ -21,7 +21,7 @@ export function ConfirmButton(props: { label: ReactNode; confirmLabel?: string; 
   );
 }
 
-const TAG_SHORT: Record<Tag, string> = { Vegan: 'V', Vegetarian: 'VT', GF: 'GF' };
+const TAG_SHORT: Record<Tag, string> = { Vegan: 'V', Vegetarian: 'VT', Pesc: 'P', GF: 'GF', DF: 'DF' };
 
 export function TagToggles({ tags, onChange }: { tags: Tag[]; onChange: (t: Tag[]) => void }) {
   return (

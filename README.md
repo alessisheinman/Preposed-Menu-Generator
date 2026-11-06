@@ -14,7 +14,7 @@ This is the client-proposal companion to the kitchen menu site. The two are sepa
 
 Long pages fit themselves: text shrinks slightly, then switches to two columns rather than getting too small to read.
 
-Everything saves in this browser (cover images in IndexedDB). Use **Export backup** (includes covers) and **Import** to move between computers. The **Catalog** tab edits dishes, descriptions, tags, templates and venues.
+Everything saves in this browser (cover images in IndexedDB). Use **Export backup** (includes covers) and **Import backup** to move between computers. **Import proposal PDF** turns a finished proposal PDF back into an editable proposal; it runs OCR in the browser, so the PDF stays on the computer. The **Catalog** tab edits dishes, descriptions, tags, templates and venues.
 
 ## Develop
 

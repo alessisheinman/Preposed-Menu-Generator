@@ -1,3 +1,5 @@
 node_modules/
 dist/
 public/_dev-*
+# Client menus: never commit these
+*.pdf

@@ -4,9 +4,11 @@ import { defaultFileName } from '../model/format';
 import { newId } from '../model/ids';
 import type { Catalog, CatalogOverrides, ExportFile, MenuEvent } from '../model/types';
 import { loadCover, saveCover } from '../storage/covers';
+import { extractPalette } from '../theme/palette';
 import { buildExport, findConflicts, mergeImport, parseImport, type ConflictChoice } from '../storage/exportImport';
 import { ConfirmButton, saveBlob } from './common';
 import { CoverDrop, importCover } from './CoverDrop';
+import { PdfImport, type ImportedCover } from './PdfImport';
 
 interface Props {
   events: MenuEvent[];
@@ -30,6 +32,8 @@ export function EventList({ events, covers, overrides, catalog, onOpen, setEvent
   const [createError, setCreateError] = useState('');
   const [pending, setPending] = useState<{ file: ExportFile; conflicts: MenuEvent[]; withCatalog: boolean } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const pdfRef = useRef<HTMLInputElement>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
 
   const pickCover = (f: File) => {
     if (!f.type.startsWith('image/')) return setCreateError("That file isn't an image.");
@@ -88,6 +92,16 @@ export function EventList({ events, covers, overrides, catalog, onOpen, setEvent
     else await finishImport(res.file, 'keepBoth', false);
   };
 
+  const createFromPdf = async (event: MenuEvent, cover: ImportedCover) => {
+    const id = await saveCover(cover.dataUrl);
+    putCover(id, cover.dataUrl);
+    const { primary, secondary } = extractPalette(cover.sample);
+    const ev = { ...event, coverId: id, palette: { primary, secondary, auto: true } };
+    setEvents((all) => [ev, ...all]);
+    setPdfFile(null);
+    onOpen(ev.id);
+  };
+
   const sorted = [...events].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 
   return (
@@ -117,10 +131,19 @@ export function EventList({ events, covers, overrides, catalog, onOpen, setEvent
           <h2>Proposals</h2>
           <div className="row">
             <button type="button" onClick={exportAll} disabled={events.length === 0}>Export backup</button>
-            <button type="button" onClick={() => fileRef.current?.click()}>Import…</button>
+            <button type="button" onClick={() => pdfRef.current?.click()} disabled={!!pdfFile}>Import proposal PDF…</button>
+            <input
+              ref={pdfRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              hidden
+              onChange={(e) => { setPdfFile(e.target.files?.[0] ?? null); e.target.value = ''; }}
+            />
+            <button type="button" onClick={() => fileRef.current?.click()}>Import backup…</button>
             <input ref={fileRef} type="file" accept=".json,application/json" hidden onChange={(e) => onFile(e.target.files?.[0])} />
           </div>
         </div>
+        {pdfFile && <PdfImport key={`${pdfFile.name}-${pdfFile.lastModified}`} file={pdfFile} catalog={catalog} onCancel={() => setPdfFile(null)} onCreate={createFromPdf} />}
         {msg && <p className="notice">{msg}</p>}
         {pending && (
           <div className="notice">

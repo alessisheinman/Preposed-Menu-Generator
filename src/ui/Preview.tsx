@@ -94,7 +94,7 @@ function Thumb({ day, meal, event, coverUrl, lifted = false }: { day: Day; meal:
   return (
     <div className={`thumb ${lifted ? 'lifted' : ''}`} style={{ width: THUMB_W, height: PAGE_H * SCALE }}>
       <div style={{ transform: `scale(${SCALE})`, transformOrigin: 'top left' } as CSSProperties}>
-        <ProposalPage day={day} meal={meal} palette={event.palette} coverUrl={coverUrl} coverFocusY={event.coverFocusY} />
+        <ProposalPage day={day} meal={meal} palette={event.palette} coverUrl={coverUrl} coverFocusY={event.coverFocusY} showScript={!event.coverIncludesScript} />
       </div>
     </div>
   );
@@ -128,7 +128,7 @@ function PageLightbox({ pages, index, event, coverUrl, onIndex, onClose }: {
     <div className="page-lightbox" role="dialog" aria-label={`${meal.title} — click to close`} onClick={onClose}>
       <div className="page-lightbox-frame" style={{ width: PAGE_W * scale, height: PAGE_H * scale }}>
         <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
-          <ProposalPage day={day} meal={meal} palette={event.palette} coverUrl={coverUrl} coverFocusY={event.coverFocusY} />
+          <ProposalPage day={day} meal={meal} palette={event.palette} coverUrl={coverUrl} coverFocusY={event.coverFocusY} showScript={!event.coverIncludesScript} />
         </div>
       </div>
       {pages.length > 1 && (

@@ -31,10 +31,12 @@ interface Props {
   palette: Palette;
   coverUrl: string | null;
   coverFocusY: number;
+  /** false when the cover already has "Menu" written on it. */
+  showScript?: boolean;
   className?: string;
 }
 
-export function ProposalPage({ day, meal, palette, coverUrl, coverFocusY, className = '' }: Props) {
+export function ProposalPage({ day, meal, palette, coverUrl, coverFocusY, showScript = true, className = '' }: Props) {
   const theme = useMemo(() => deriveTheme(palette.primary, palette.secondary), [palette.primary, palette.secondary]);
   const items = printItems(meal);
   const listRef = useRef<HTMLDivElement>(null);
@@ -91,7 +93,7 @@ export function ProposalPage({ day, meal, palette, coverUrl, coverFocusY, classN
       >
         {!coverUrl && <span>Upload cover art</span>}
       </div>
-      <div className="pp-script">Menu</div>
+      {showScript && <div className="pp-script">Menu</div>}
       <h2 className="pp-title">{meal.title.trim() || meal.type.toUpperCase()}</h2>
       {day.dateLabel.trim() && <p className="pp-date">{day.dateLabel.trim()}</p>}
       <div className={`pp-area ${day.dateLabel.trim() ? 'with-date' : ''}`} ref={areaRef}>

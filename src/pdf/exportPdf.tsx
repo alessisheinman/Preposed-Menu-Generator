@@ -43,7 +43,7 @@ export async function exportPdf(event: MenuEvent, coverUrl: string | null, onPro
     for (let i = 0; i < pages.length; i++) {
       const { day, meal } = pages[i];
       flushSync(() => {
-        root.render(<ProposalPage day={day} meal={meal} palette={event.palette} coverUrl={coverUrl} coverFocusY={event.coverFocusY} />);
+        root.render(<ProposalPage day={day} meal={meal} palette={event.palette} coverUrl={coverUrl} coverFocusY={event.coverFocusY} showScript={!event.coverIncludesScript} />);
       });
       await document.fonts?.ready;
       await settle(); // let the fit-to-page pass settle after fonts load
